@@ -3,11 +3,15 @@ var models = require('../models');
 exports.projectInfo = function(req, res) { 
   var projectID = req.params.id;
 
+  models.Project
+    .find({"id": projectID})
+    .exec(afterQuery);
   // query for the specific project and
   // call the following callback
 
   function afterQuery(err, projects) {
     if(err) console.log(err);
+    console.log(projects[0]);
     res.json(projects[0]);
   }
 }
@@ -15,13 +19,35 @@ exports.projectInfo = function(req, res) { 
 exports.addProject = function(req, res) {
   var form_data = req.body;
   console.log(form_data);
+  var newPost = new models.Project({
+    "title": String,
+    "date": Date,
+    "summary": String,
+    "image": String,
+  })
+  newPost.save(afterSaving);
 
+  function afterSaving(err) { // this is a callback
+    if(err) {console.log(err); res.send(500); }
+    res.redirect('/');
+}
   // make a new Project and save it to the DB
   // YOU MUST send an OK response w/ res.send();
 }
 
 exports.deleteProject = function(req, res) {
   var projectID = req.params.id;
+
+  models.Project
+    .find({"id": projectID});
+    .remove()
+    .exec(deleteCallback);
+    res.send("OK");
+
+  function deleteCallback(err) {
+  if(err) { console.log(err); }
+
+}
 
   // find the project and remove it
   // YOU MUST send an OK response w/ res.send();
